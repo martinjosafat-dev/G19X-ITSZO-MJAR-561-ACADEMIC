@@ -28,7 +28,7 @@ class ChatMessage(BaseModel):
 class InterviewEvaluation(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
 
-    score: int = Field(ge=1, le=100)
+    score: int = Field(ge=0, le=100)
     feedback: str = Field(min_length=1, max_length=1000)
 
 

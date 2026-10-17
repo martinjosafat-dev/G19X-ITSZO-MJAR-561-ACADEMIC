@@ -1,13 +1,17 @@
+import logging
 from typing import Any
 from uuid import UUID
 
 from fastapi import HTTPException, status
+from langchain_google_genai.chat_models import ChatGoogleGenerativeAIError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.candidate import Candidate
 from app.models.interview import Interview
 from app.models.schemas.interview import InterviewCreate, InterviewEvaluation
 from app.services.ai_service import evaluate_interview, generate_interviewer_response
+
+logger = logging.getLogger(__name__)
 
 
 async def create_interview(
@@ -98,6 +102,12 @@ async def finish_interview(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(error),
+        ) from error
+    except ChatGoogleGenerativeAIError as error:
+        logger.exception("Gemini failed to evaluate interview %s", interview_id)
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="The AI evaluation provider could not complete the request. Please retry.",
         ) from error
 
     interview.status = "completed"

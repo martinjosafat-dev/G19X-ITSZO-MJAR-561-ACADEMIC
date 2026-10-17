@@ -1,18 +1,51 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import {
   getInterviewEvaluation,
   getRequestErrorMessage,
   type InterviewEvaluation,
 } from '../services/interviewService'
 
+function isInterviewEvaluation(value: unknown): value is InterviewEvaluation {
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+
+  const evaluation = value as Record<string, unknown>
+  return (
+    typeof evaluation.interview_id === 'string' &&
+    typeof evaluation.score === 'number' &&
+    Number.isInteger(evaluation.score) &&
+    evaluation.score >= 0 &&
+    evaluation.score <= 100 &&
+    typeof evaluation.feedback === 'string'
+  )
+}
+
 function EvaluationPage() {
   const { interviewId } = useParams<{ interviewId: string }>()
-  const [evaluation, setEvaluation] = useState<InterviewEvaluation | null>(null)
+  const location = useLocation()
+  const navigationEvaluation: unknown = location.state
+  const [evaluation, setEvaluation] = useState<InterviewEvaluation | null>(() => {
+    if (
+      isInterviewEvaluation(navigationEvaluation) &&
+      navigationEvaluation.interview_id === interviewId
+    ) {
+      return navigationEvaluation
+    }
+    return null
+  })
   const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     if (!interviewId) {
+      return
+    }
+
+    if (
+      isInterviewEvaluation(navigationEvaluation) &&
+      navigationEvaluation.interview_id === interviewId
+    ) {
       return
     }
 
@@ -42,7 +75,7 @@ function EvaluationPage() {
     return () => {
       isCurrent = false
     }
-  }, [interviewId])
+  }, [interviewId, navigationEvaluation])
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-10 text-slate-900">

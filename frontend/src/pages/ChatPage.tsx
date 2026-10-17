@@ -72,8 +72,8 @@ function ChatPage() {
     setErrorMessage('')
     setIsFinishing(true)
     try {
-      await finishInterview(interviewId)
-      navigate(`/evaluation/${interviewId}`)
+      const evaluation = await finishInterview(interviewId)
+      navigate(`/evaluation/${interviewId}`, { state: evaluation })
     } catch (error: unknown) {
       setErrorMessage(
         getRequestErrorMessage(

@@ -100,8 +100,10 @@ async def evaluate_interview(
                 "Evalúa la entrevista laboral basándote únicamente en las respuestas "
                 "del candidato. Considera claridad, relevancia, ejemplos concretos, "
                 "resolución de problemas y comunicación. Devuelve un puntaje entero "
-                "del 1 al 100 y observaciones breves, específicas y constructivas. "
-                "No incluyas texto fuera del objeto JSON solicitado."
+                "del 0 al 100 y retroalimentación técnica y de habilidades blandas, "
+                "breve, específica y constructiva. La respuesta debe ser estrictamente "
+                "un JSON con los campos score (entero) y feedback (texto), sin texto "
+                "fuera del objeto."
             )
         )
     ]
@@ -117,6 +119,15 @@ async def evaluate_interview(
             conversation.append(AIMessage(content=content))
         else:
             raise ValueError(f"Unsupported transcript role: {role!r}")
+
+    conversation.append(
+        HumanMessage(
+            content=(
+                "Evalúa ahora el desempeño del candidato en todo el historial anterior. "
+                "Responde exclusivamente con el JSON estructurado solicitado."
+            )
+        )
+    )
 
     structured_llm = _create_google_llm().with_structured_output(
         InterviewEvaluation,
