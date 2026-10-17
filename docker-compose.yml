@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: plurione_ia
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:?Set GOOGLE_API_KEY in the root .env file}
+      GOOGLE_GENAI_MODEL: ${GOOGLE_GENAI_MODEL:-gemini-3.8-flash}
+      DATABASE_URL: postgresql+asyncpg://postgres:admin@db:5432/plurione_ia
+    ports:
+      - "8080:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

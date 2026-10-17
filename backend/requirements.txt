@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+sqlalchemy
+alembic
+psycopg2-binary
+asyncpg
+pydantic
+pydantic-settings
+python-dotenv
+greenlet
+langgraph
+langchain-google-genai
