@@ -2,10 +2,16 @@ import logging
 from typing import Any
 from uuid import UUID
 
-from fastapi import HTTPException, status
 from langchain_google_genai.chat_models import ChatGoogleGenerativeAIError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.domain.exceptions import (
+    AIProviderUnavailableError,
+    CandidateNotFoundError,
+    InterviewConflictError,
+    InterviewNotFoundError,
+    InvalidInterviewEvaluationError,
+)
 from app.models.candidate import Candidate
 from app.models.interview import Interview
 from app.models.schemas.interview import InterviewCreate, InterviewEvaluation
@@ -20,10 +26,7 @@ async def create_interview(
 ) -> Interview:
     candidate = await session.get(Candidate, interview_data.candidate_id)
     if candidate is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Candidate not found",
-        )
+        raise CandidateNotFoundError("Candidate not found")
 
     interview = Interview(
         candidate_id=interview_data.candidate_id,
@@ -43,15 +46,9 @@ async def process_chat_message(
 ) -> tuple[Interview, str]:
     interview = await session.get(Interview, interview_id)
     if interview is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Interview not found",
-        )
+        raise InterviewNotFoundError("Interview not found")
     if interview.status != "in_progress":
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Interview is not in progress",
-        )
+        raise InterviewConflictError("Interview is not in progress")
 
     transcript: list[dict[str, Any]] = list(interview.transcript or [])
     ai_response = await generate_interviewer_response(transcript, candidate_message)
@@ -73,41 +70,28 @@ async def finish_interview(
 ) -> InterviewEvaluation:
     interview = await session.get(Interview, interview_id)
     if interview is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Interview not found",
-        )
+        raise InterviewNotFoundError("Interview not found")
 
     if interview.status == "completed":
         if interview.ai_score is None or interview.evaluation_feedback is None:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Interview evaluation is incomplete",
-            )
+            raise InterviewConflictError("Interview evaluation is incomplete")
         return InterviewEvaluation(
             score=int(interview.ai_score),
             feedback=interview.evaluation_feedback,
         )
 
     if interview.status != "in_progress":
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Interview is not in progress",
-        )
+        raise InterviewConflictError("Interview is not in progress")
 
     transcript: list[dict[str, Any]] = list(interview.transcript or [])
     try:
         evaluation = await evaluate_interview(transcript)
     except ValueError as error:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(error),
-        ) from error
+        raise InvalidInterviewEvaluationError(str(error)) from error
     except ChatGoogleGenerativeAIError as error:
         logger.exception("Gemini failed to evaluate interview %s", interview_id)
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="The AI evaluation provider could not complete the request. Please retry.",
+        raise AIProviderUnavailableError(
+            "The AI evaluation provider could not complete the request. Please retry."
         ) from error
 
     interview.status = "completed"
@@ -123,19 +107,13 @@ async def get_interview_evaluation(
 ) -> InterviewEvaluation:
     interview = await session.get(Interview, interview_id)
     if interview is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Interview not found",
-        )
+        raise InterviewNotFoundError("Interview not found")
     if (
         interview.status != "completed"
         or interview.ai_score is None
         or interview.evaluation_feedback is None
     ):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Interview evaluation is not available",
-        )
+        raise InterviewConflictError("Interview evaluation is not available")
 
     return InterviewEvaluation(
         score=int(interview.ai_score),

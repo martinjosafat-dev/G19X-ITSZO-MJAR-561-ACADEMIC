@@ -37,13 +37,14 @@ frontend/src/
 
 1. Clona el repositorio y abre una terminal en la carpeta raíz.
 
-2. Crea un archivo `.env` en esa carpeta y agrega tu clave de Gemini:
+2. Crea o actualiza el archivo `.env` en esa carpeta con tu clave de Gemini y una contraseña para PostgreSQL:
 
    ```dotenv
    GOOGLE_API_KEY=tu_api_key_de_google
+   POSTGRES_PASSWORD=una_contraseña_segura
    ```
 
-   No publiques ni compartas el archivo `.env`; está excluido del control de versiones.
+   No publiques ni compartas el archivo `.env`; está excluido del control de versiones. Usa una contraseña compatible con una URL de conexión (sin caracteres reservados como `@`, `/` o `:`).
 
 3. Construye e inicia el backend y PostgreSQL:
 
@@ -65,6 +66,12 @@ frontend/src/
    cd frontend
    npm install
    npm run dev
+   ```
+
+   Antes de iniciarlo, crea `frontend/.env` con la URL de la API:
+
+   ```dotenv
+   VITE_API_URL=http://localhost:8080/api/v1
    ```
 
    Abre la URL local que indique Vite en la terminal (normalmente `http://localhost:5173`).

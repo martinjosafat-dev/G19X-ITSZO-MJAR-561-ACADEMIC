@@ -3,12 +3,17 @@ services:
     image: postgres:15
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env file}
       POSTGRES_DB: plurione_ia
     ports:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d plurione_ia"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   api:
     build:
@@ -17,13 +22,15 @@ services:
     environment:
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:?Set GOOGLE_API_KEY in the root .env file}
       GOOGLE_GENAI_MODEL: ${GOOGLE_GENAI_MODEL:-gemini-3.8-flash}
-      DATABASE_URL: postgresql+asyncpg://postgres:admin@db:5432/plurione_ia
+      DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env file}@db:5432/plurione_ia
     ports:
       - "8080:8000"
     volumes:
       - ./backend:/app
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    command: ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"]
 
 volumes:
   postgres_data:
