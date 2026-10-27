@@ -11,15 +11,43 @@ from app.models.schemas.interview import (
     InterviewCreate,
     InterviewEvaluationResponse,
     InterviewResponse,
+    InterviewTranscriptResponse,
+    RecruiterInterviewSummary,
 )
 from app.services.interview_service import (
     create_interview,
     finish_interview,
     get_interview_evaluation,
+    get_interview_transcript,
+    list_interviews,
     process_chat_message,
 )
 
 router = APIRouter()
+
+
+@router.get(
+    "/interviews/",
+    response_model=list[RecruiterInterviewSummary],
+)
+async def list_interviews_endpoint(
+    session: AsyncSession = Depends(get_db_session),
+) -> list[RecruiterInterviewSummary]:
+    return await list_interviews(session)
+
+
+@router.get(
+    "/interviews/{interview_id}",
+    response_model=InterviewTranscriptResponse,
+)
+async def get_interview_transcript_endpoint(
+    interview_id: UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> InterviewTranscriptResponse:
+    try:
+        return await get_interview_transcript(session, interview_id)
+    except DomainError as error:
+        raise to_http_exception(error) from error
 
 
 @router.post(

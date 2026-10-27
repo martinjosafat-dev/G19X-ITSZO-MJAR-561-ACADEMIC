@@ -20,6 +20,19 @@ class InterviewResponse(BaseModel):
     created_at: datetime
 
 
+class RecruiterInterviewSummary(BaseModel):
+    id: UUID
+    candidate_name: str
+    candidate_email: str
+    status: str
+    score: float | None
+
+
+class InterviewTranscriptResponse(BaseModel):
+    id: UUID
+    transcript: list[dict[str, Any]]
+
+
 class ChatMessage(BaseModel):
     message: str = Field(min_length=1)
     response: str | None = None

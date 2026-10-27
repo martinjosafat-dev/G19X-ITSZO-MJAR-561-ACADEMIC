@@ -38,6 +38,24 @@ def _create_google_llm() -> ChatGoogleGenerativeAI:
     )
 
 
+def _transcript_to_messages(
+    transcript: list[dict[str, Any]],
+) -> list[BaseMessage]:
+    messages: list[BaseMessage] = []
+    for entry in transcript:
+        role = entry.get("role")
+        content = entry.get("content")
+        if not isinstance(content, str):
+            raise ValueError("Transcript entries must contain string content")
+        if role == "user":
+            messages.append(HumanMessage(content=content))
+        elif role == "assistant":
+            messages.append(AIMessage(content=content))
+        else:
+            raise ValueError(f"Unsupported transcript role: {role!r}")
+    return messages
+
+
 async def _generate_interviewer_response(state: InterviewState) -> dict[str, list[BaseMessage]]:
     llm = _create_google_llm()
     response = await llm.ainvoke(state["messages"])
@@ -67,19 +85,7 @@ async def generate_interviewer_response(
             )
         )
     ]
-
-    for entry in transcript:
-        role = entry.get("role")
-        content = entry.get("content")
-        if not isinstance(content, str):
-            raise ValueError("Transcript entries must contain string content")
-        if role == "user":
-            conversation.append(HumanMessage(content=content))
-        elif role == "assistant":
-            conversation.append(AIMessage(content=content))
-        else:
-            raise ValueError(f"Unsupported transcript role: {role!r}")
-
+    conversation.extend(_transcript_to_messages(transcript))
     conversation.append(HumanMessage(content=candidate_message))
     result = await _interview_graph.ainvoke({"messages": conversation})
     messages = result["messages"]
@@ -107,19 +113,7 @@ async def evaluate_interview(
             )
         )
     ]
-
-    for entry in transcript:
-        role = entry.get("role")
-        content = entry.get("content")
-        if not isinstance(content, str):
-            raise ValueError("Transcript entries must contain string content")
-        if role == "user":
-            conversation.append(HumanMessage(content=content))
-        elif role == "assistant":
-            conversation.append(AIMessage(content=content))
-        else:
-            raise ValueError(f"Unsupported transcript role: {role!r}")
-
+    conversation.extend(_transcript_to_messages(transcript))
     conversation.append(
         HumanMessage(
             content=(

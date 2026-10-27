@@ -17,13 +17,14 @@ El backend sigue principios de **Clean Architecture**, separando presentación, 
 ```text
 backend/app/
 ├── api/        # Routers y endpoints HTTP
-├── core/       # Configuración y componentes compartidos
+│   └── errors.py # Traducción de excepciones de negocio a HTTP
 ├── db/         # Motor y sesiones de base de datos
+├── domain/     # Excepciones de negocio
 ├── models/     # Modelos SQLAlchemy y esquemas Pydantic
 └── services/   # Lógica de negocio e integración con Gemini
 
 frontend/src/
-├── pages/      # Pantallas de registro, chat y evaluación
+├── pages/      # Registro, chat, evaluación y panel de reclutador
 └── services/   # Cliente HTTP y servicios de la API
 ```
 
@@ -37,14 +38,13 @@ frontend/src/
 
 1. Clona el repositorio y abre una terminal en la carpeta raíz.
 
-2. Crea o actualiza el archivo `.env` en esa carpeta con tu clave de Gemini y una contraseña para PostgreSQL:
+2. Copia el archivo de ejemplo de entorno y completa sus variables:
 
-   ```dotenv
-   GOOGLE_API_KEY=tu_api_key_de_google
-   POSTGRES_PASSWORD=una_contraseña_segura
+   ```powershell
+   Copy-Item .env.example .env
    ```
 
-   No publiques ni compartas el archivo `.env`; está excluido del control de versiones. Usa una contraseña compatible con una URL de conexión (sin caracteres reservados como `@`, `/` o `:`).
+   En `.env`, configura `GOOGLE_API_KEY`, `GOOGLE_GENAI_MODEL` y `POSTGRES_PASSWORD`. No publiques el archivo `.env`. Usa una contraseña compatible con una URL de conexión (sin caracteres reservados como `@`, `/` o `:`).
 
 3. Construye e inicia el backend y PostgreSQL:
 
@@ -60,21 +60,31 @@ frontend/src/
 
 4. Comprueba que la API esté activa en `http://localhost:8080/health`. La documentación interactiva de FastAPI está en `http://localhost:8080/docs`. PostgreSQL está publicado en el puerto `5433`.
 
+   Compose aplica las migraciones al iniciar la API. Para ejecutarlas manualmente:
+
+   ```powershell
+   docker compose exec api alembic upgrade head
+   ```
+
+   Cuando haya pruebas bajo `backend/tests/`, instala las dependencias de desarrollo y ejecútalas desde el contenedor:
+
+   ```powershell
+   docker compose exec api python -m pip install -r requirements-dev.txt
+   docker compose exec api python -m pytest
+   ```
+
 5. En otra terminal, inicia el frontend:
 
-   ```bash
-   cd frontend
+   ```powershell
+   Copy-Item frontend/.env.example frontend/.env
+   Set-Location frontend
    npm install
    npm run dev
    ```
 
-   Antes de iniciarlo, crea `frontend/.env` con la URL de la API:
-
-   ```dotenv
-   VITE_API_URL=http://localhost:8080/api/v1
-   ```
-
    Abre la URL local que indique Vite en la terminal (normalmente `http://localhost:5173`).
+
+   El panel del reclutador está disponible en `http://localhost:5173/recruiter`.
 
 Para detener los servicios de Docker desde la raíz:
 
@@ -83,3 +93,12 @@ docker-compose down
 ```
 
 Los datos de PostgreSQL se conservan en el volumen Docker `postgres_data`.
+
+## Documentación
+
+- [Product Requirements Document (PRD)](docs/PRD.md)
+- [Alcance del MVP](docs/MVP.md)
+
+## Uso de IA
+
+GitHub Copilot se utilizó como asistente de código para apoyar la exploración, redacción y revisión de cambios. El equipo del proyecto conserva la responsabilidad sobre las decisiones técnicas, la validación y el código final.

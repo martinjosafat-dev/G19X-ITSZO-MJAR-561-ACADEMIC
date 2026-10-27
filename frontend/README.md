@@ -1,32 +1,50 @@
-# React + TypeScript + Vite
+# Frontend de PluriOne
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Interfaz web de PluriOne construida con React, TypeScript, Vite y Tailwind CSS.
 
-Currently, two official plugins are available:
+## Pantallas
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Registro (`/`):** captura los datos del candidato e inicia una entrevista.
+- **Chat (`/chat/:interviewId`):** conversa por texto con el entrevistador de IA y permite finalizar la entrevista.
+- **Evaluación (`/evaluation/:interviewId`):** muestra el puntaje y la retroalimentación de una entrevista completada.
+- **Panel de reclutador (`/recruiter` y `/dashboard`):** muestra entrevistas, estado, puntaje y permite consultar el transcript.
 
-## React Compiler
+El panel no cuenta actualmente con autenticación ni autorización; úsalo solo en un entorno controlado y sin datos personales reales.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Requisitos
 
-## Expanding the Oxlint configuration
+- Node.js y npm.
+- API FastAPI en ejecución. La URL local por defecto es `http://localhost:8080`.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## Configuración
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+Desde la raíz del repositorio, crea el archivo local a partir de la plantilla:
+
+```powershell
+Copy-Item frontend/.env.example frontend/.env
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Configura `frontend/.env` con la URL base de la API, incluido el prefijo `/api/v1`:
+
+```dotenv
+VITE_API_URL=http://localhost:8080/api/v1
+```
+
+Vite expone variables con prefijo `VITE_` al código del navegador; no guardes secretos en este archivo.
+
+## Instalación y desarrollo
+
+```powershell
+Set-Location frontend
+npm install
+npm run dev
+```
+
+Abre la dirección que indique Vite, normalmente `http://localhost:5173`.
+
+## Verificación y build
+
+```powershell
+npm run lint
+npm run build
+```
