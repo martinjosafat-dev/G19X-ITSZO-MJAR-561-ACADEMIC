@@ -9,16 +9,16 @@ from app.domain.exceptions import DomainError
 from app.models.schemas.interview import (
     ChatMessage,
     InterviewCreate,
+    InterviewDetail,
     InterviewEvaluationResponse,
     InterviewResponse,
-    InterviewTranscriptResponse,
-    RecruiterInterviewSummary,
+    InterviewSummary,
 )
 from app.services.interview_service import (
     create_interview,
     finish_interview,
+    get_interview_detail,
     get_interview_evaluation,
-    get_interview_transcript,
     list_interviews,
     process_chat_message,
 )
@@ -28,24 +28,24 @@ router = APIRouter()
 
 @router.get(
     "/interviews/",
-    response_model=list[RecruiterInterviewSummary],
+    response_model=list[InterviewSummary],
 )
 async def list_interviews_endpoint(
     session: AsyncSession = Depends(get_db_session),
-) -> list[RecruiterInterviewSummary]:
+) -> list[InterviewSummary]:
     return await list_interviews(session)
 
 
 @router.get(
     "/interviews/{interview_id}",
-    response_model=InterviewTranscriptResponse,
+    response_model=InterviewDetail,
 )
-async def get_interview_transcript_endpoint(
+async def get_interview_detail_endpoint(
     interview_id: UUID,
     session: AsyncSession = Depends(get_db_session),
-) -> InterviewTranscriptResponse:
+) -> InterviewDetail:
     try:
-        return await get_interview_transcript(session, interview_id)
+        return await get_interview_detail(session, interview_id)
     except DomainError as error:
         raise to_http_exception(error) from error
 

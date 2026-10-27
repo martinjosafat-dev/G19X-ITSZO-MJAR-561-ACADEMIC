@@ -20,17 +20,24 @@ class InterviewResponse(BaseModel):
     created_at: datetime
 
 
-class RecruiterInterviewSummary(BaseModel):
+class InterviewSummary(BaseModel):
     id: UUID
     candidate_name: str
     candidate_email: str
     status: str
     score: float | None
+    created_at: datetime
 
 
-class InterviewTranscriptResponse(BaseModel):
+class InterviewDetail(BaseModel):
     id: UUID
+    candidate_name: str
+    candidate_email: str
+    status: str
+    score: float | None
+    created_at: datetime
     transcript: list[dict[str, Any]]
+    feedback: str | None
 
 
 class ChatMessage(BaseModel):

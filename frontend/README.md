@@ -7,7 +7,8 @@ Interfaz web de PluriOne construida con React, TypeScript, Vite y Tailwind CSS.
 - **Registro (`/`):** captura los datos del candidato e inicia una entrevista.
 - **Chat (`/chat/:interviewId`):** conversa por texto con el entrevistador de IA y permite finalizar la entrevista.
 - **Evaluación (`/evaluation/:interviewId`):** muestra el puntaje y la retroalimentación de una entrevista completada.
-- **Panel de reclutador (`/recruiter` y `/dashboard`):** muestra entrevistas, estado, puntaje y permite consultar el transcript.
+- **Panel de reclutador (`/recruiter` y `/dashboard`):** muestra el listado de entrevistas con estado, puntaje y fecha.
+- **Detalle del reclutador (`/recruiter/:interviewId`):** muestra datos del candidato, retroalimentación y transcript completo.
 
 El panel no cuenta actualmente con autenticación ni autorización; úsalo solo en un entorno controlado y sin datos personales reales.
 

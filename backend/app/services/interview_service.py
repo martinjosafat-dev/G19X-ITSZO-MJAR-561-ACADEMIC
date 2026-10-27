@@ -17,9 +17,9 @@ from app.models.candidate import Candidate
 from app.models.interview import Interview
 from app.models.schemas.interview import (
     InterviewCreate,
+    InterviewDetail,
     InterviewEvaluation,
-    InterviewTranscriptResponse,
-    RecruiterInterviewSummary,
+    InterviewSummary,
 )
 from app.services.ai_service import evaluate_interview, generate_interviewer_response
 
@@ -28,41 +28,49 @@ logger = logging.getLogger(__name__)
 
 async def list_interviews(
     session: AsyncSession,
-) -> list[RecruiterInterviewSummary]:
+) -> list[InterviewSummary]:
     result = await session.execute(
-        select(
-            Interview.id,
-            Candidate.first_name,
-            Candidate.last_name,
-            Candidate.email,
-            Interview.status,
-            Interview.ai_score,
-        )
+        select(Interview, Candidate)
         .join(Candidate, Interview.candidate_id == Candidate.id)
         .order_by(Interview.created_at.desc())
     )
     return [
-        RecruiterInterviewSummary(
-            id=interview_id,
-            candidate_name=f"{first_name} {last_name}",
-            candidate_email=email,
-            status=interview_status,
-            score=score,
+        InterviewSummary(
+            id=interview.id,
+            candidate_name=f"{candidate.first_name} {candidate.last_name}",
+            candidate_email=candidate.email,
+            status=interview.status,
+            score=interview.ai_score,
+            created_at=interview.created_at,
         )
-        for interview_id, first_name, last_name, email, interview_status, score in result
+        for interview, candidate in result
     ]
 
 
-async def get_interview_transcript(
+async def get_interview_detail(
     session: AsyncSession,
     interview_id: UUID,
-) -> InterviewTranscriptResponse:
-    interview = await session.get(Interview, interview_id)
-    if interview is None:
+) -> InterviewDetail:
+    result = await session.execute(
+        select(Interview, Candidate)
+        .join(Candidate, Interview.candidate_id == Candidate.id)
+        .where(Interview.id == interview_id)
+    )
+    row = result.first()
+    if row is None:
         raise InterviewNotFoundError("Interview not found")
 
-    transcript = interview.transcript or []
-    return InterviewTranscriptResponse(id=interview.id, transcript=transcript)
+    interview, candidate = row
+    return InterviewDetail(
+        id=interview.id,
+        candidate_name=f"{candidate.first_name} {candidate.last_name}",
+        candidate_email=candidate.email,
+        status=interview.status,
+        score=interview.ai_score,
+        created_at=interview.created_at,
+        transcript=interview.transcript or [],
+        feedback=interview.evaluation_feedback,
+    )
 
 
 async def create_interview(
@@ -96,7 +104,17 @@ async def process_chat_message(
         raise InterviewConflictError("Interview is not in progress")
 
     transcript: list[dict[str, Any]] = list(interview.transcript or [])
-    ai_response = await generate_interviewer_response(transcript, candidate_message)
+    try:
+        ai_response = await generate_interviewer_response(
+            transcript,
+            candidate_message,
+        )
+    except ChatGoogleGenerativeAIError as error:
+        logger.exception("Gemini failed to process interview %s", interview_id)
+        raise AIProviderUnavailableError(
+            "The AI interviewer could not complete the request. Please retry."
+        ) from error
+
     updated_transcript = [
         *transcript,
         {"role": "user", "content": candidate_message},

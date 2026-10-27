@@ -37,12 +37,13 @@ export interface InterviewEvaluation {
   feedback: string
 }
 
-export interface RecruiterInterviewSummary {
+export interface InterviewSummary {
   id: string
   candidate_name: string
   candidate_email: string
   status: string
   score: number | null
+  created_at: string
 }
 
 export interface InterviewTranscriptEntry {
@@ -50,10 +51,19 @@ export interface InterviewTranscriptEntry {
   content: string
 }
 
-export interface InterviewTranscript {
+export interface InterviewDetail {
   id: string
+  candidate_name: string
+  candidate_email: string
+  status: string
+  score: number | null
+  created_at: string
   transcript: InterviewTranscriptEntry[]
+  feedback: string | null
 }
+
+export type RecruiterInterviewSummary = InterviewSummary
+export type InterviewTranscript = InterviewDetail
 
 export async function createCandidate(
   candidate: CandidateCreate,
@@ -99,20 +109,30 @@ export async function getInterviewEvaluation(
   return response.data
 }
 
+export async function listInterviews(): Promise<InterviewSummary[]> {
+  const response = await api.get<InterviewSummary[]>('/interviews/')
+  return response.data
+}
+
 export async function getRecruiterInterviews(): Promise<
   RecruiterInterviewSummary[]
 > {
-  const response = await api.get<RecruiterInterviewSummary[]>('/interviews/')
+  return listInterviews()
+}
+
+export async function getInterviewDetail(
+  interviewId: string,
+): Promise<InterviewDetail> {
+  const response = await api.get<InterviewDetail>(
+    `/interviews/${encodeURIComponent(interviewId)}`,
+  )
   return response.data
 }
 
 export async function getInterviewTranscript(
   interviewId: string,
 ): Promise<InterviewTranscript> {
-  const response = await api.get<InterviewTranscript>(
-    `/interviews/${encodeURIComponent(interviewId)}`,
-  )
-  return response.data
+  return getInterviewDetail(interviewId)
 }
 
 export async function registerCandidateAndStartInterview(
