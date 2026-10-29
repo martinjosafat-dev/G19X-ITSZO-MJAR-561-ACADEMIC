@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.errors import to_http_exception
+from app.api.security import require_recruiter_key
 from app.db.session import get_db_session
 from app.domain.exceptions import DomainError
 from app.models.schemas.interview import (
@@ -29,6 +30,7 @@ router = APIRouter()
 @router.get(
     "/interviews/",
     response_model=list[InterviewSummary],
+    dependencies=[Depends(require_recruiter_key)],
 )
 async def list_interviews_endpoint(
     session: AsyncSession = Depends(get_db_session),
@@ -39,6 +41,7 @@ async def list_interviews_endpoint(
 @router.get(
     "/interviews/{interview_id}",
     response_model=InterviewDetail,
+    dependencies=[Depends(require_recruiter_key)],
 )
 async def get_interview_detail_endpoint(
     interview_id: UUID,

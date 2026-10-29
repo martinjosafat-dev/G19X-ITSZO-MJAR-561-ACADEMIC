@@ -1,27 +1,48 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import {
   getRequestErrorMessage,
+  isUnauthorizedError,
   listInterviews,
+  translateInterviewStatus,
   type InterviewSummary,
 } from '../services/interviewService'
 
+const recruiterKeyStorageKey = 'plurione_recruiter_api_key'
+
 function RecruiterListPage() {
   const [interviews, setInterviews] = useState<InterviewSummary[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [recruiterKey, setRecruiterKey] = useState(
+    () => sessionStorage.getItem(recruiterKeyStorageKey) ?? '',
+  )
+  const [keyInput, setKeyInput] = useState('')
+  const [loadedKey, setLoadedKey] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState('')
+  const isLoading = Boolean(recruiterKey) && loadedKey !== recruiterKey
 
   useEffect(() => {
+    if (!recruiterKey) {
+      return
+    }
+
     let isCurrent = true
 
     async function loadInterviews() {
       try {
-        const result = await listInterviews()
+        const result = await listInterviews(recruiterKey)
         if (isCurrent) {
           setInterviews(result)
         }
       } catch (error: unknown) {
         if (isCurrent) {
+          if (isUnauthorizedError(error)) {
+            sessionStorage.removeItem(recruiterKeyStorageKey)
+            setRecruiterKey('')
+            setKeyInput('')
+            setInterviews([])
+            setErrorMessage('La llave no es válida o expiró. Ingresa una llave válida.')
+            return
+          }
           setErrorMessage(
             getRequestErrorMessage(
               error,
@@ -31,7 +52,7 @@ function RecruiterListPage() {
         }
       } finally {
         if (isCurrent) {
-          setIsLoading(false)
+          setLoadedKey(recruiterKey)
         }
       }
     }
@@ -41,7 +62,22 @@ function RecruiterListPage() {
     return () => {
       isCurrent = false
     }
-  }, [])
+  }, [recruiterKey])
+
+  function submitRecruiterKey(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const newKey = keyInput.trim()
+    if (!newKey) {
+      return
+    }
+
+    sessionStorage.setItem(recruiterKeyStorageKey, newKey)
+    setRecruiterKey(newKey)
+    setKeyInput('')
+    setLoadedKey(null)
+    setInterviews([])
+    setErrorMessage('')
+  }
 
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-10 text-slate-900 sm:px-6 lg:px-8">
@@ -58,6 +94,40 @@ function RecruiterListPage() {
           </p>
         </header>
 
+        {!recruiterKey && (
+          <form
+            className="mb-6 rounded-2xl bg-white p-6 shadow-lg shadow-slate-200/70"
+            onSubmit={submitRecruiterKey}
+          >
+            <label
+              className="block text-sm font-semibold text-slate-700"
+              htmlFor="recruiter-key"
+            >
+              Llave de acceso del reclutador
+            </label>
+            <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+              <input
+                autoComplete="current-password"
+                className="min-w-0 flex-1 rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-100"
+                id="recruiter-key"
+                onChange={(event) => setKeyInput(event.target.value)}
+                required
+                type="password"
+                value={keyInput}
+              />
+              <button
+                className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-200"
+                type="submit"
+              >
+                Continuar
+              </button>
+            </div>
+            <p className="mt-3 text-xs text-slate-500">
+              La llave se guarda solo en la sesión actual del navegador.
+            </p>
+          </form>
+        )}
+
         <section className="overflow-hidden rounded-2xl bg-white shadow-lg shadow-slate-200/70">
           {errorMessage ? (
             <p
@@ -66,6 +136,10 @@ function RecruiterListPage() {
               role="alert"
             >
               {errorMessage}
+            </p>
+          ) : !recruiterKey ? (
+            <p className="px-6 py-10 text-center text-sm text-slate-500">
+              Ingresa la llave para consultar las entrevistas.
             </p>
           ) : isLoading ? (
             <p className="px-6 py-10 text-center text-sm text-slate-500" role="status">
@@ -109,7 +183,7 @@ function RecruiterListPage() {
                         </p>
                       </td>
                       <td className="px-6 py-4 text-slate-700">
-                        {interview.status}
+                        {translateInterviewStatus(interview.status)}
                       </td>
                       <td className="px-6 py-4 font-semibold text-slate-800">
                         {interview.score === null

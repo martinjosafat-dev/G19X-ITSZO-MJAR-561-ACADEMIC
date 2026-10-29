@@ -10,7 +10,7 @@ Interfaz web de PluriOne construida con React, TypeScript, Vite y Tailwind CSS.
 - **Panel de reclutador (`/recruiter` y `/dashboard`):** muestra el listado de entrevistas con estado, puntaje y fecha.
 - **Detalle del reclutador (`/recruiter/:interviewId`):** muestra datos del candidato, retroalimentación y transcript completo.
 
-El panel no cuenta actualmente con autenticación ni autorización; úsalo solo en un entorno controlado y sin datos personales reales.
+El panel solicita una llave compartida de reclutador y la conserva en `sessionStorage` hasta cerrar la pestaña. Esto no sustituye cuentas, permisos individuales ni autorización por organización; úsalo solo en un entorno controlado y con HTTPS fuera de desarrollo.
 
 ## Requisitos
 

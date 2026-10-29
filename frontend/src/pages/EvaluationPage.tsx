@@ -115,6 +115,11 @@ function EvaluationPage() {
               </p>
             </div>
 
+            <p className="mt-4 text-center text-xs leading-5 text-slate-500">
+              Este puntaje lo generó una IA. Es un apoyo para la revisión del
+              equipo de selección, no una decisión de contratación.
+            </p>
+
             <p className="mt-5 break-all text-center text-xs text-slate-400">
               Entrevista {evaluation.interview_id}
             </p>

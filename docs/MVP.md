@@ -7,7 +7,7 @@ Validar el flujo de entrevista inicial asistida por IA, desde el registro del ca
 ## 2. Usuarios
 
 - **Candidato:** se registra, responde preguntas por texto y solicita la evaluación de su entrevista.
-- **Reclutador:** consulta entrevistas, puntajes y transcripts desde el panel web. El panel actual no incluye autenticación ni autorización y debe limitarse a demostraciones controladas.
+- **Reclutador:** consulta entrevistas, puntajes y transcripts desde el panel web usando una llave compartida. No hay cuentas ni permisos individuales; debe limitarse a demostraciones controladas.
 
 ## 3. Incluido
 
@@ -25,8 +25,8 @@ Validar el flujo de entrevista inicial asistida por IA, desde el registro del ca
 - Power BI, tableros analíticos e informes agregados.
 - Integraciones con ATS, calendarios, correo o mensajería.
 - Administración de vacantes, configuración de competencias, rúbricas o plantillas.
-- Autenticación, cuentas, roles y autorización para reclutadores.
-- Uso del panel con datos reales o su publicación abierta hasta implementar controles de acceso y privacidad.
+- Cuentas, roles y autorización por organización para reclutadores.
+- Uso del panel con datos reales o su publicación abierta hasta implementar controles de acceso y privacidad más completos, y configurar HTTPS.
 - Recomendaciones automáticas para avanzar, rechazar o contratar candidatos.
 - Garantías de imparcialidad, ausencia de sesgo o validez predictiva de la evaluación.
 
@@ -60,7 +60,7 @@ Validar el flujo de entrevista inicial asistida por IA, desde el registro del ca
 - **MVP-REC-01:** Al abrir el panel, se muestra una tabla con candidato, correo, estado y puntaje; si no hay puntaje se indica que está pendiente.
 - **MVP-REC-02:** Al seleccionar una entrevista, se carga y muestra su transcript completo en orden, identificando candidato y entrevistador IA.
 - **MVP-REC-03:** El panel presenta estados diferenciados de carga, lista vacía y error de consulta.
-- **MVP-REC-04:** El panel se usa solo en un entorno controlado hasta implementar autenticación, autorización y controles de privacidad adecuados.
+- **MVP-REC-04:** La llave compartida no sustituye autenticación individual ni autorización por organización; el panel se limita a entornos controlados hasta implementar controles de acceso y privacidad adecuados.
 
 ## 6. Límites y supuestos
 

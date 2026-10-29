@@ -44,7 +44,7 @@ frontend/src/
    Copy-Item .env.example .env
    ```
 
-   En `.env`, configura `GOOGLE_API_KEY`, `GOOGLE_GENAI_MODEL` y `POSTGRES_PASSWORD`. No publiques el archivo `.env`. Usa una contraseña compatible con una URL de conexión (sin caracteres reservados como `@`, `/` o `:`).
+   En `.env`, configura `GOOGLE_API_KEY`, `GOOGLE_GENAI_MODEL`, `POSTGRES_PASSWORD` y `RECRUITER_API_KEY`. Define una llave de reclutador larga y aleatoria; la ingresarás en el panel para consultar sus endpoints protegidos. No publiques el archivo `.env`. Usa una contraseña compatible con una URL de conexión (sin caracteres reservados como `@`, `/` o `:`).
 
 3. Construye e inicia el backend y PostgreSQL:
 

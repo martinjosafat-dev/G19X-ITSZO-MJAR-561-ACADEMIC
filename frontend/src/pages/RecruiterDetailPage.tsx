@@ -3,17 +3,24 @@ import { Link, useParams } from 'react-router-dom'
 import {
   getInterviewDetail,
   getRequestErrorMessage,
+  isUnauthorizedError,
+  translateInterviewStatus,
   type InterviewDetail,
 } from '../services/interviewService'
 
+const recruiterKeyStorageKey = 'plurione_recruiter_api_key'
+
 function RecruiterDetailPage() {
   const { interviewId } = useParams<{ interviewId: string }>()
+  const [recruiterKey, setRecruiterKey] = useState(
+    () => sessionStorage.getItem(recruiterKeyStorageKey) ?? '',
+  )
   const [interview, setInterview] = useState<InterviewDetail | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
-    if (!interviewId) {
+    if (!interviewId || !recruiterKey) {
       return
     }
 
@@ -22,12 +29,19 @@ function RecruiterDetailPage() {
 
     async function loadInterview() {
       try {
-        const result = await getInterviewDetail(currentInterviewId)
+        const result = await getInterviewDetail(currentInterviewId, recruiterKey)
         if (isCurrent) {
           setInterview(result)
         }
       } catch (error: unknown) {
         if (isCurrent) {
+          if (isUnauthorizedError(error)) {
+            sessionStorage.removeItem(recruiterKeyStorageKey)
+            setRecruiterKey('')
+            setInterview(null)
+            setErrorMessage('La llave no es válida o expiró. Vuelve a ingresar una llave válida.')
+            return
+          }
           setErrorMessage(
             getRequestErrorMessage(
               error,
@@ -47,7 +61,7 @@ function RecruiterDetailPage() {
     return () => {
       isCurrent = false
     }
-  }, [interviewId])
+  }, [interviewId, recruiterKey])
 
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-10 text-slate-900 sm:px-6 lg:px-8">
@@ -66,6 +80,17 @@ function RecruiterDetailPage() {
             role="alert"
           >
             {errorMessage || 'No se encontró el identificador de la entrevista.'}
+          </p>
+        ) : !recruiterKey ? (
+          <p
+            aria-live="polite"
+            className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+            role="status"
+          >
+            La llave de reclutador no está disponible.{' '}
+            <Link className="font-semibold underline" to="/recruiter">
+              Vuelve al listado para ingresarla.
+            </Link>
           </p>
         ) : isLoading ? (
           <p className="mt-8 text-center text-sm text-slate-500" role="status">
@@ -86,7 +111,9 @@ function RecruiterDetailPage() {
                   <dt className="text-xs font-semibold uppercase text-slate-500">
                     Estado
                   </dt>
-                  <dd className="mt-1 font-medium">{interview.status}</dd>
+                  <dd className="mt-1 font-medium">
+                    {translateInterviewStatus(interview.status)}
+                  </dd>
                 </div>
                 <div>
                   <dt className="text-xs font-semibold uppercase text-slate-500">
@@ -117,6 +144,11 @@ function RecruiterDetailPage() {
                 </p>
               </section>
             )}
+
+            <p className="mt-4 text-xs leading-5 text-slate-500">
+              Este puntaje lo generó una IA. Es un apoyo para la revisión del
+              equipo de selección, no una decisión de contratación.
+            </p>
 
             <section className="mt-6 rounded-2xl bg-white p-6 shadow-lg shadow-slate-200/70">
               <h2 className="text-lg font-semibold">Transcript</h2>

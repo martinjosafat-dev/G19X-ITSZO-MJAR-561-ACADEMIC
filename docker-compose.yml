@@ -22,6 +22,7 @@ services:
     environment:
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:?Set GOOGLE_API_KEY in the root .env file}
       GOOGLE_GENAI_MODEL: ${GOOGLE_GENAI_MODEL:-gemini-3.8-flash}
+      RECRUITER_API_KEY: ${RECRUITER_API_KEY:?Set RECRUITER_API_KEY in the root .env file}
       DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env file}@db:5432/plurione_ia
     ports:
       - "8080:8000"

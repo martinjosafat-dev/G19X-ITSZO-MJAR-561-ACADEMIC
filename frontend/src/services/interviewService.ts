@@ -62,9 +62,6 @@ export interface InterviewDetail {
   feedback: string | null
 }
 
-export type RecruiterInterviewSummary = InterviewSummary
-export type InterviewTranscript = InterviewDetail
-
 export async function createCandidate(
   candidate: CandidateCreate,
 ): Promise<CandidateResponse> {
@@ -109,30 +106,24 @@ export async function getInterviewEvaluation(
   return response.data
 }
 
-export async function listInterviews(): Promise<InterviewSummary[]> {
-  const response = await api.get<InterviewSummary[]>('/interviews/')
+export async function listInterviews(
+  recruiterKey: string,
+): Promise<InterviewSummary[]> {
+  const response = await api.get<InterviewSummary[]>('/interviews/', {
+    headers: { 'X-Recruiter-Key': recruiterKey },
+  })
   return response.data
-}
-
-export async function getRecruiterInterviews(): Promise<
-  RecruiterInterviewSummary[]
-> {
-  return listInterviews()
 }
 
 export async function getInterviewDetail(
   interviewId: string,
+  recruiterKey: string,
 ): Promise<InterviewDetail> {
   const response = await api.get<InterviewDetail>(
     `/interviews/${encodeURIComponent(interviewId)}`,
+    { headers: { 'X-Recruiter-Key': recruiterKey } },
   )
   return response.data
-}
-
-export async function getInterviewTranscript(
-  interviewId: string,
-): Promise<InterviewTranscript> {
-  return getInterviewDetail(interviewId)
 }
 
 export async function registerCandidateAndStartInterview(
@@ -154,4 +145,19 @@ export function getRequestErrorMessage(
   }
 
   return fallbackMessage
+}
+
+export function isUnauthorizedError(error: unknown): boolean {
+  return axios.isAxiosError(error) && error.response?.status === 401
+}
+
+const interviewStatusLabels: Record<string, string> = {
+  pending: 'Pendiente',
+  in_progress: 'En progreso',
+  completed: 'Completada',
+  cancelled: 'Cancelada',
+}
+
+export function translateInterviewStatus(status: string): string {
+  return interviewStatusLabels[status] ?? status
 }

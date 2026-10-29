@@ -50,7 +50,7 @@ Integrante del equipo de selección que revisa entrevistas y resultados como apo
 
 **Límite actual**
 
-La aplicación cuenta con un panel en `/recruiter` y endpoints de consulta, pero todavía no implementa autenticación ni autorización. El panel no debe exponerse con datos reales o públicamente hasta incorporar esos controles.
+La aplicación cuenta con un panel en `/recruiter` y endpoints protegidos mediante una llave compartida. Todavía no implementa cuentas, permisos individuales ni autorización por organización. El panel no debe exponerse públicamente ni utilizarse con datos reales hasta incorporar esos controles y transporte HTTPS.
 
 ## 5. Requisitos funcionales
 
@@ -132,6 +132,6 @@ La instrumentación y metas numéricas quedan pendientes. Se proponen estas mét
 
 - El desempeño depende de la disponibilidad y calidad del proveedor y del modelo de IA.
 - Un puntaje válido sintácticamente no demuestra que la evaluación sea justa, exacta o libre de sesgo.
-- El panel actual no incluye autenticación ni autorización; protegerlo es requisito previo para el uso con datos reales.
+- El panel actual usa una llave compartida y no implementa cuentas, permisos individuales ni autorización por organización; controles más completos y HTTPS son requisito previo para su uso con datos reales.
 - Se deben definir consentimiento, aviso de privacidad, retención y eliminación de datos.
 - Se deben acordar rúbricas y mecanismos de revisión antes de usar la evaluación para decisiones operativas.
