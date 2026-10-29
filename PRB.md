@@ -1,3 +1,5 @@
+> Este documento representa la visión inicial del proyecto. El alcance real de la primera versión se define en [docs/MVP.md](docs/MVP.md). El motor de IA elegido para el MVP es Google Gemini; las funciones de voz y Power BI quedan fuera del alcance por ahora.
+
 # Project Reference Brief (PRB)
 **Proyecto:** Plataforma de Entrevistas Asistidas mediante IA Conversacional
 **Empresa:** PluriOne S.A. de C.V. (Develop Talent & Technology) 
@@ -9,14 +11,14 @@ Desarrollo de una plataforma HRTech para automatizar entrevistas iniciales media
 ## 2. Matriz Tecnológica
 *   **Backend:** Python, FastAPI (Pydantic, SQLAlchemy/SQLModel).
 *   **Frontend:** React.js.
-*   **Motor de IA:** Azure OpenAI (LLMs), Whisper (Speech-to-Text), LangGraph (Orquestación de agentes y flujos)[cite: 1].
+*   **Motor de IA:** Google Gemini (LLM), LangGraph (orquestación de entrevistas).
 *   **Base de Datos:** PostgreSQL.
 *   **DevOps e Infraestructura:** Docker, GitHub Actions (CI/CD).
-*   **Análisis de Datos:** Power BI.
+*   **Análisis de Datos:** Fuera del alcance actual del MVP.
 
 ## 3. Arquitectura y Estándares de Codificación
 *   **Arquitectura Limpia (Clean Architecture):** Separación estricta entre capa de presentación (Routers), lógica de negocio/IA (Servicios/Agentes) y acceso a datos (Repositorios).
-*   **Asincronismo:** Uso obligatorio de `async/await` en FastAPI para operaciones de I/O, base de datos y llamadas a APIs externas (Azure/Whisper).
+*   **Asincronismo:** Uso de `async/await` en FastAPI para operaciones de I/O, base de datos y llamadas al proveedor externo de IA.
 *   **Diseño de Agentes (LangGraph):** Los flujos de entrevista se modelarán como grafos de estado (StateGraphs) para preservar el contexto de la conversación del candidato.
 *   **Idioma:** El código fuente (variables, funciones, tablas, endpoints) debe escribirse estrictamente en **inglés**. La documentación, comentarios explicativos y prompts del sistema deben redactarse en **español**.
 *   **Tipado:** Uso estricto de Type Hints en Python y validación de datos con Pydantic.

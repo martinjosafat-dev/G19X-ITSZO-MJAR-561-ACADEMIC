@@ -81,5 +81,36 @@ Candidato
 - `DATABASE_URL`: conexión asíncrona de SQLAlchemy a PostgreSQL.
 - `GOOGLE_API_KEY`: credencial del servicio Gemini; debe mantenerse fuera del control de versiones.
 - `GOOGLE_GENAI_MODEL`: identificador de modelo elegido para la API key activa; Compose define un valor por defecto que puede sobrescribirse en el archivo `.env`.
+- `RECRUITER_API_KEY`: llave compartida requerida para consultar los endpoints del reclutador; debe mantenerse fuera del control de versiones.
 
 El backend y PostgreSQL se ejecutan con Docker Compose. El frontend se puede iniciar localmente con Vite durante el desarrollo.
+
+## Sprint 8 — Panel del reclutador y documentación
+
+Se agregaron los endpoints protegidos para listar entrevistas y consultar su detalle, incluyendo candidato, estado, puntaje, fecha, transcript y retroalimentación. La llave del reclutador se valida mediante el header `X-Recruiter-Key` y la variable `RECRUITER_API_KEY`.
+
+En React se crearon las pantallas del panel y el detalle del reclutador. La lista muestra candidato, estado, puntaje y fecha; el detalle muestra transcript y retroalimentación. La evaluación incluye una nota que aclara que el puntaje generado por IA es una ayuda para el equipo y no una decisión de contratación.
+
+Se actualizaron el PRB, el README principal y la guía del frontend; se incorporaron los documentos [PRD](docs/PRD.md) y [MVP](docs/MVP.md). Se añadieron plantillas `.env.example` para backend y frontend, y se fijaron las versiones de las dependencias Python en `backend/requirements.txt`.
+
+### Pruebas automatizadas
+
+Las pruebas están en `backend/tests/` y no realizan llamadas al proveedor de IA. Incluyen comprobaciones de:
+
+- Conversión de dos turnos del transcript a `HumanMessage` y `AIMessage`.
+- Rechazo de roles de transcript no soportados.
+- Aceptación de `score=100` y rechazo de `score=101` en `InterviewEvaluation`.
+- Mapeo de excepciones de dominio a códigos HTTP y validación de la llave de reclutador.
+
+Instala el conjunto de dependencias de desarrollo y ejecuta la suite desde `backend/`:
+
+```powershell
+python -m pip install -r requirements-dev.txt
+python -m pytest
+```
+
+El comando `python -m pytest` también puede ejecutarse dentro del contenedor API desde la raíz del repositorio:
+
+```powershell
+docker compose exec api python -m pytest
+```

@@ -66,7 +66,7 @@ frontend/src/
    docker compose exec api alembic upgrade head
    ```
 
-   Cuando haya pruebas bajo `backend/tests/`, instala las dependencias de desarrollo y ejecútalas desde el contenedor:
+   Las pruebas están en `backend/tests/`. Instala las dependencias de desarrollo y ejecútalas desde el contenedor:
 
    ```powershell
    docker compose exec api python -m pip install -r requirements-dev.txt
@@ -96,6 +96,7 @@ Los datos de PostgreSQL se conservan en el volumen Docker `postgres_data`.
 
 ## Documentación
 
+- [DOCUMENTATION.md](DOCUMENTATION.md)
 - [Product Requirements Document (PRD)](docs/PRD.md)
 - [Alcance del MVP](docs/MVP.md)
 
