@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class InterviewCreate(BaseModel):
     candidate_id: UUID
+    position: str = Field(min_length=2, max_length=120)
 
 
 class InterviewResponse(BaseModel):
@@ -14,6 +15,7 @@ class InterviewResponse(BaseModel):
 
     id: UUID
     candidate_id: UUID
+    position: str | None
     status: str
     transcript: list[dict[str, Any]] | None
     ai_score: float | None
@@ -24,6 +26,7 @@ class InterviewSummary(BaseModel):
     id: UUID
     candidate_name: str
     candidate_email: str
+    position: str | None
     status: str
     score: float | None
     created_at: datetime
@@ -33,6 +36,7 @@ class InterviewDetail(BaseModel):
     id: UUID
     candidate_name: str
     candidate_email: str
+    position: str | None
     status: str
     score: float | None
     created_at: datetime

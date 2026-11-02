@@ -106,6 +106,12 @@ function RecruiterDetailPage() {
                 {interview.candidate_name}
               </h1>
               <p className="mt-1 text-slate-600">{interview.candidate_email}</p>
+              <p className="mt-2 text-sm text-slate-600">
+                Puesto al que aplica:{' '}
+                <span className="font-semibold text-slate-800">
+                  {interview.position || 'No especificado'}
+                </span>
+              </p>
               <dl className="mt-6 grid gap-4 sm:grid-cols-3">
                 <div>
                   <dt className="text-xs font-semibold uppercase text-slate-500">

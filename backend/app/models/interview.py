@@ -18,6 +18,7 @@ class Interview(Base):
         nullable=False,
         index=True,
     )
+    position: Mapped[str | None] = mapped_column(String(120), nullable=True)
     status: Mapped[str] = mapped_column(
         String(20),
         nullable=False,

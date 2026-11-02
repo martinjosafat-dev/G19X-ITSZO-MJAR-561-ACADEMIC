@@ -16,6 +16,7 @@ const initialForm: CandidateCreate = {
 function RegistrationPage() {
   const navigate = useNavigate()
   const [form, setForm] = useState(initialForm)
+  const [position, setPosition] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -33,7 +34,10 @@ function RegistrationPage() {
     setIsSubmitting(true)
 
     try {
-      const interview = await registerCandidateAndStartInterview(form)
+      const interview = await registerCandidateAndStartInterview(
+        form,
+        position.trim(),
+      )
       navigate(`/chat/${interview.id}`)
     } catch (error: unknown) {
       setErrorMessage(getRequestErrorMessage(error))
@@ -116,6 +120,24 @@ function RegistrationPage() {
               placeholder="+1 555 0100"
               type="tel"
               value={form.phone ?? ''}
+            />
+          </label>
+
+          <label className="block text-sm font-medium text-slate-700">
+            Puesto al que aplicas
+            <input
+              autoComplete="organization-title"
+              className={inputClassName}
+              maxLength={120}
+              minLength={2}
+              name="position"
+              onChange={(event) => {
+                setPosition(event.target.value)
+                setErrorMessage('')
+              }}
+              placeholder="Ej. Analista de datos"
+              required
+              value={position}
             />
           </label>
 

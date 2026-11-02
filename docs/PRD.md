@@ -132,6 +132,7 @@ La instrumentación y metas numéricas quedan pendientes. Se proponen estas mét
 
 - El desempeño depende de la disponibilidad y calidad del proveedor y del modelo de IA.
 - Un puntaje válido sintácticamente no demuestra que la evaluación sea justa, exacta o libre de sesgo.
+- El transcript puede contener instrucciones maliciosas para manipular el puntaje o alterar las reglas de evaluación; aunque se indiquen al modelo como datos y no instrucciones, la resistencia debe probarse y monitorearse.
 - El panel actual usa una llave compartida y no implementa cuentas, permisos individuales ni autorización por organización; controles más completos y HTTPS son requisito previo para su uso con datos reales.
 - Se deben definir consentimiento, aviso de privacidad, retención y eliminación de datos.
 - Se deben acordar rúbricas y mecanismos de revisión antes de usar la evaluación para decisiones operativas.

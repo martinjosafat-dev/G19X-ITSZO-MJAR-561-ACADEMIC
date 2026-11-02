@@ -151,11 +151,14 @@ function RecruiterListPage() {
             </p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[720px] text-left text-sm">
+              <table className="w-full min-w-[840px] text-left text-sm">
                 <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                   <tr>
                     <th className="px-6 py-4 font-semibold" scope="col">
                       Candidato
+                    </th>
+                    <th className="px-6 py-4 font-semibold" scope="col">
+                      Puesto
                     </th>
                     <th className="px-6 py-4 font-semibold" scope="col">
                       Estado
@@ -181,6 +184,9 @@ function RecruiterListPage() {
                         <p className="mt-1 text-slate-500">
                           {interview.candidate_email}
                         </p>
+                      </td>
+                      <td className="px-6 py-4 text-slate-700">
+                        {interview.position || 'No especificado'}
                       </td>
                       <td className="px-6 py-4 text-slate-700">
                         {translateInterviewStatus(interview.status)}

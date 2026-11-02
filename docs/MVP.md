@@ -12,6 +12,7 @@ Validar el flujo de entrevista inicial asistida por IA, desde el registro del ca
 ## 3. Incluido
 
 - Registro de candidato y creación de una entrevista asociada.
+- Captura y persistencia del puesto al que aplica el candidato para personalizar la conversación.
 - Validación de campos y rechazo de correos duplicados.
 - Chat textual en español con contexto de turnos anteriores y persistencia del transcript.
 - Finalización de entrevista y evaluación con IA, puntaje de 0 a 100 y retroalimentación.
@@ -37,10 +38,12 @@ Validar el flujo de entrevista inicial asistida por IA, desde el registro del ca
 - **MVP-REG-01:** Dado un formulario válido, al enviarlo, el sistema crea un candidato y una entrevista relacionada en estado `in_progress`.
 - **MVP-REG-02:** Dado un correo electrónico ya registrado, el sistema rechaza el duplicado y no crea un segundo candidato.
 - **MVP-REG-03:** Si faltan campos requeridos o no pasan la validación, el sistema muestra el error y no crea una entrevista incompleta.
+- **MVP-REG-04:** El puesto al que aplica es obligatorio, contiene entre 2 y 120 caracteres, se asocia a la entrevista, se incluye en el prompt del entrevistador y se muestra al reclutador.
 
 ### 5.2 Chat
 
 - **MVP-CHAT-01:** Para una entrevista existente y en curso, un mensaje no vacío obtiene una respuesta no vacía del entrevistador IA.
+- **MVP-CHAT-07:** El prompt del entrevistador incluye el puesto asociado a la entrevista; si un registro anterior no tiene puesto, la conversación indica que no está especificado.
 - **MVP-CHAT-02:** Cada respuesta considera el transcript previo; el historial no se reinicia entre mensajes.
 - **MVP-CHAT-03:** En el flujo normal, el entrevistador responde en español y formula como máximo una pregunta relevante por turno.
 - **MVP-CHAT-04:** Tras una solicitud exitosa, el transcript contiene el mensaje del candidato y la respuesta de IA en ese orden, con emisor identificable.
@@ -50,6 +53,7 @@ Validar el flujo de entrevista inicial asistida por IA, desde el registro del ca
 ### 5.3 Evaluación con IA
 
 - **MVP-EVAL-01:** Al finalizar una entrevista con historial, la evaluación usa el transcript completo y las respuestas del candidato.
+- **MVP-EVAL-06:** Si el transcript contiene instrucciones para manipular el puntaje o cambiar las reglas, el sistema las trata como contenido del candidato y conserva las instrucciones de evaluación.
 - **MVP-EVAL-02:** El sistema acepta únicamente un puntaje entero en el rango inclusivo de 0 a 100 y retroalimentación no vacía.
 - **MVP-EVAL-03:** Si el proveedor falla o la salida no es válida, el sistema muestra un error, no persiste una evaluación parcial y no cambia el estado a `completed`.
 - **MVP-EVAL-04:** Si la evaluación es válida, el sistema persiste puntaje, retroalimentación y estado `completed`, y la interfaz muestra el resultado.

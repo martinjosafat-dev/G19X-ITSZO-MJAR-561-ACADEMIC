@@ -39,6 +39,7 @@ async def list_interviews(
             id=interview.id,
             candidate_name=f"{candidate.first_name} {candidate.last_name}",
             candidate_email=candidate.email,
+            position=interview.position,
             status=interview.status,
             score=interview.ai_score,
             created_at=interview.created_at,
@@ -65,6 +66,7 @@ async def get_interview_detail(
         id=interview.id,
         candidate_name=f"{candidate.first_name} {candidate.last_name}",
         candidate_email=candidate.email,
+        position=interview.position,
         status=interview.status,
         score=interview.ai_score,
         created_at=interview.created_at,
@@ -83,6 +85,7 @@ async def create_interview(
 
     interview = Interview(
         candidate_id=interview_data.candidate_id,
+        position=interview_data.position,
         status="in_progress",
         transcript=[],
     )
@@ -108,6 +111,7 @@ async def process_chat_message(
         ai_response = await generate_interviewer_response(
             transcript,
             candidate_message,
+            interview.position,
         )
     except ChatGoogleGenerativeAIError as error:
         logger.exception("Gemini failed to process interview %s", interview_id)

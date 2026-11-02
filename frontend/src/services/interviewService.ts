@@ -15,11 +15,13 @@ export interface CandidateResponse extends CandidateCreate {
 
 export interface InterviewCreate {
   candidate_id: string
+  position: string
 }
 
 export interface InterviewResponse {
   id: string
   candidate_id: string
+  position: string | null
   status: string
   transcript: Array<Record<string, unknown>> | null
   ai_score: number | null
@@ -41,6 +43,7 @@ export interface InterviewSummary {
   id: string
   candidate_name: string
   candidate_email: string
+  position: string | null
   status: string
   score: number | null
   created_at: string
@@ -55,6 +58,7 @@ export interface InterviewDetail {
   id: string
   candidate_name: string
   candidate_email: string
+  position: string | null
   status: string
   score: number | null
   created_at: string
@@ -71,8 +75,9 @@ export async function createCandidate(
 
 export async function createInterview(
   candidateId: string,
+  position: string,
 ): Promise<InterviewResponse> {
-  const payload: InterviewCreate = { candidate_id: candidateId }
+  const payload: InterviewCreate = { candidate_id: candidateId, position }
   const response = await api.post<InterviewResponse>('/interviews/', payload)
   return response.data
 }
@@ -128,9 +133,10 @@ export async function getInterviewDetail(
 
 export async function registerCandidateAndStartInterview(
   candidate: CandidateCreate,
+  position: string,
 ): Promise<InterviewResponse> {
   const createdCandidate = await createCandidate(candidate)
-  return createInterview(createdCandidate.id)
+  return createInterview(createdCandidate.id, position)
 }
 
 export function getRequestErrorMessage(
