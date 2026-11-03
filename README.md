@@ -99,6 +99,7 @@ Los datos de PostgreSQL se conservan en el volumen Docker `postgres_data`.
 - [DOCUMENTATION.md](DOCUMENTATION.md)
 - [Product Requirements Document (PRD)](docs/PRD.md)
 - [Alcance del MVP](docs/MVP.md)
+- [Recorrido de revisión del MVP](docs/RECORRIDO.md)
 
 ## Uso de IA
 
