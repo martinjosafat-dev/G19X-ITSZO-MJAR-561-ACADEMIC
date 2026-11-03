@@ -66,7 +66,7 @@ frontend/src/
    docker compose exec api alembic upgrade head
    ```
 
-   Las pruebas están en `backend/tests/`. Instala las dependencias de desarrollo y ejecútalas desde el contenedor:
+   Las pruebas están en `backend/tests/`. Las pruebas corren en GitHub Actions en cada push. Instala las dependencias de desarrollo y ejecútalas desde el contenedor:
 
    ```powershell
    docker compose exec api python -m pip install -r requirements-dev.txt
