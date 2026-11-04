@@ -1,8 +1,14 @@
 from datetime import datetime
-from typing import Any
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
+from typing_extensions import TypedDict
+
+
+class TranscriptEntry(TypedDict):
+    role: Literal["user", "assistant"]
+    content: str
 
 
 class InterviewCreate(BaseModel):
@@ -17,7 +23,7 @@ class InterviewResponse(BaseModel):
     candidate_id: UUID
     position: str | None
     status: str
-    transcript: list[dict[str, Any]] | None
+    transcript: list[TranscriptEntry] | None
     ai_score: float | None
     created_at: datetime
 
@@ -40,7 +46,7 @@ class InterviewDetail(BaseModel):
     status: str
     score: float | None
     created_at: datetime
-    transcript: list[dict[str, Any]]
+    transcript: list[TranscriptEntry]
     feedback: str | None
 
 

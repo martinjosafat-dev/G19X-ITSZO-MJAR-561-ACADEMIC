@@ -1,12 +1,12 @@
 import os
-from typing import Annotated, Any, TypedDict
+from typing import Annotated, TypedDict
 
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 
-from app.models.schemas.interview import InterviewEvaluation
+from app.models.schemas.interview import InterviewEvaluation, TranscriptEntry
 
 
 _EVALUATION_INSTRUCTIONS = (
@@ -26,7 +26,7 @@ class InterviewState(TypedDict):
     messages: Annotated[list[BaseMessage], add_messages]
 
 
-def _extract_text_content(content: str | list[str | dict[str, Any]]) -> str:
+def _extract_text_content(content: str | list[str | dict[str, object]]) -> str:
     if isinstance(content, str):
         return content
 
@@ -52,14 +52,12 @@ def _create_google_llm() -> ChatGoogleGenerativeAI:
 
 
 def _transcript_to_messages(
-    transcript: list[dict[str, Any]],
+    transcript: list[TranscriptEntry],
 ) -> list[BaseMessage]:
     messages: list[BaseMessage] = []
     for entry in transcript:
-        role = entry.get("role")
-        content = entry.get("content")
-        if not isinstance(content, str):
-            raise ValueError("Transcript entries must contain string content")
+        role = entry["role"]
+        content = entry["content"]
         if role == "user":
             messages.append(HumanMessage(content=content))
         elif role == "assistant":
@@ -69,7 +67,9 @@ def _transcript_to_messages(
     return messages
 
 
-async def _generate_interviewer_response(state: InterviewState) -> dict[str, list[BaseMessage]]:
+async def _generate_interviewer_response(
+    state: InterviewState,
+) -> dict[str, list[BaseMessage]]:
     llm = _create_google_llm()
     response = await llm.ainvoke(state["messages"])
     if not isinstance(response, AIMessage):
@@ -86,7 +86,7 @@ _interview_graph = _workflow.compile()
 
 
 async def generate_interviewer_response(
-    transcript: list[dict[str, Any]],
+    transcript: list[TranscriptEntry],
     candidate_message: str,
     position: str | None,
 ) -> str:
@@ -110,7 +110,7 @@ async def generate_interviewer_response(
 
 
 def _build_evaluation_messages(
-    transcript: list[dict[str, Any]],
+    transcript: list[TranscriptEntry],
 ) -> list[BaseMessage]:
     messages: list[BaseMessage] = [
         SystemMessage(content=_EVALUATION_INSTRUCTIONS),
@@ -126,7 +126,7 @@ def _build_evaluation_messages(
 
 
 async def evaluate_interview(
-    transcript: list[dict[str, Any]],
+    transcript: list[TranscriptEntry],
 ) -> InterviewEvaluation:
     if not transcript:
         raise ValueError("Cannot evaluate an interview with an empty transcript")

@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Any
 from uuid import UUID, uuid4
 
 from sqlalchemy import DateTime, Float, ForeignKey, String, Text, Uuid, func
@@ -7,6 +6,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
+from app.models.schemas.interview import TranscriptEntry
 
 
 class Interview(Base):
@@ -25,7 +25,10 @@ class Interview(Base):
         default="pending",
         server_default="pending",
     )
-    transcript: Mapped[list[dict[str, Any]] | None] = mapped_column(JSONB, nullable=True)
+    transcript: Mapped[list[TranscriptEntry] | None] = mapped_column(
+        JSONB,
+        nullable=True,
+    )
     ai_score: Mapped[float | None] = mapped_column(Float, nullable=True)
     evaluation_feedback: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(

@@ -1,5 +1,4 @@
 import logging
-from typing import Any
 from uuid import UUID
 
 from langchain_google_genai.chat_models import ChatGoogleGenerativeAIError
@@ -20,6 +19,7 @@ from app.models.schemas.interview import (
     InterviewDetail,
     InterviewEvaluation,
     InterviewSummary,
+    TranscriptEntry,
 )
 from app.services.ai_service import evaluate_interview, generate_interviewer_response
 
@@ -106,7 +106,7 @@ async def process_chat_message(
     if interview.status != "in_progress":
         raise InterviewConflictError("Interview is not in progress")
 
-    transcript: list[dict[str, Any]] = list(interview.transcript or [])
+    transcript: list[TranscriptEntry] = list(interview.transcript or [])
     try:
         ai_response = await generate_interviewer_response(
             transcript,
@@ -150,7 +150,7 @@ async def finish_interview(
     if interview.status != "in_progress":
         raise InterviewConflictError("Interview is not in progress")
 
-    transcript: list[dict[str, Any]] = list(interview.transcript or [])
+    transcript: list[TranscriptEntry] = list(interview.transcript or [])
     try:
         evaluation = await evaluate_interview(transcript)
     except ValueError as error:
